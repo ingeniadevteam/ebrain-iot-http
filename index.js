@@ -15,6 +15,15 @@ module.exports = async (app) => {
     const router = express.Router();
     // setup the (by now) only get route on /
     router.get('/', (req, res) => app.gateway ? res.json(app.gateway) : res.json(app.device.values));
+    router.post('/', (req, res) => {
+        const { body } = req;
+        Object.keys(app.attributes).forEach(attr => {
+            if (body.hasOwnProperty(attr)) {
+                app.attributes[attr] = body[attr];
+            }
+        });
+        res.end();
+      });
     // all of our routes will be prefixed with /
     restServer.use('/', router);
     // Listen for requests
