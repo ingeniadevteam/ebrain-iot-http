@@ -14,14 +14,25 @@ module.exports = async (app) => {
     // get an instance of the express Router
     const router = express.Router();
     // setup the (by now) only get route on /
-    router.get('/', (req, res) => app.gateway ? res.json(app.gateway) : res.json(app.device.values));
+    router.get('/', (req, res) => app.gateway ? 
+        res.json({ attributes: app.attributes, values: app.gateway }) :
+        res.json({ attributes: app.attributes, values: app.device.values })
+    );
     router.post('/', (req, res) => {
         const { body } = req;
-        Object.keys(app.attributes).forEach(attr => {
-            if (body.hasOwnProperty(attr)) {
-                app.attributes[attr] = body[attr];
-            }
-        });
+        if (app.gateway) {
+            Object.keys(app.attributes.gateway).forEach(attr => {
+                if (body.hasOwnProperty(attr)) {
+                    app.attributes.gateway[attr] = body[attr];
+                }
+            });
+        } else {
+            Object.keys(app.attributes).forEach(attr => {
+                if (body.hasOwnProperty(attr)) {
+                    app.attributes[attr] = body[attr];
+                }
+            });            
+        }
         res.end();
       });
     // all of our routes will be prefixed with /
